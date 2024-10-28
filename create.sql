@@ -1,83 +1,114 @@
 -- Create schema
-CREATE DATABASE `icc`;
+CREATE DATABASE IF NOT EXISTS `icc`;
 USE `icc`;
-GO
 
--- Create the user table first since it's referenced by other tables
-CREATE TABLE [user] (
-    user_id INT IDENTITY(1,1) PRIMARY KEY,
-    user_type VARCHAR(12) NOT NULL CHECK (user_type IN ('Owner', 'Admin', 'Contractor', 'User', 'Client')),
-    user_name VARCHAR(50) NOT NULL,
-    user_phone CHAR(10) NOT NULL,
-    user_email VARCHAR(50) NOT NULL
+-- Create the app_user table first since it's referenced by other tables
+CREATE TABLE app_user (
+   user_id INT AUTO_INCREMENT PRIMARY KEY,
+   user_type VARCHAR(12) NOT NULL,
+   CONSTRAINT chk_user_type CHECK (user_type IN ('Owner','Admin', 'User', 'Client')),
+   user_name VARCHAR(50) NOT NULL,
+   user_phone VARCHAR(15) NOT NULL,
+   user_email VARCHAR(50) NOT NULL UNIQUE,
+   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- Create the job table
 CREATE TABLE job (
-    job_id INT IDENTITY(1,1) PRIMARY KEY,
-    client_id INT,
-    job_title VARCHAR(50) NOT NULL,
-    job_startdate DATE NOT NULL,
-    job_location VARCHAR(50),
-    job_description VARCHAR(MAX),
-    FOREIGN KEY (client_id) REFERENCES [user](user_id)
+   job_id INT AUTO_INCREMENT PRIMARY KEY,
+   job_title VARCHAR(50) NOT NULL,
+   job_startdate DATE NOT NULL,
+   job_location VARCHAR(50),
+   job_description TEXT,
+   job_floorplan LONGBLOB,
+   client_id INT,
+   created_by INT NOT NULL,
+   FOREIGN KEY (client_id) REFERENCES app_user(user_id),
+   FOREIGN KEY (created_by) REFERENCES app_user(user_id),
+   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- Create the phase table
 CREATE TABLE phase (
-    phase_id INT IDENTITY(1,1) PRIMARY KEY,
-    job_id INT NOT NULL,
-    phase_title VARCHAR(50) NOT NULL,
-    phase_description VARCHAR(MAX),
-    FOREIGN KEY (job_id) REFERENCES job(job_id)
+   phase_id INT AUTO_INCREMENT PRIMARY KEY,
+   job_id INT NOT NULL,
+   phase_title VARCHAR(50) NOT NULL,
+   phase_duration INT NOT NULL,
+   phase_description TEXT,
+   created_by INT NOT NULL,
+   FOREIGN KEY (job_id) REFERENCES job(job_id),
+   FOREIGN KEY (created_by) REFERENCES app_user(user_id),
+   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- Create the task table
 CREATE TABLE task (
-    task_id INT IDENTITY(1,1) PRIMARY KEY,
-    phase_id INT NOT NULL,
-    task_title VARCHAR(50) NOT NULL,
-    task_startdate DATE NOT NULL,
-    task_duration INT NOT NULL,
-    task_details VARCHAR(MAX),
-    task_status VARCHAR(20) NOT NULL CHECK (task_status IN ('Not Started', 'In Progress', 'Completed')),
-    FOREIGN KEY (phase_id) REFERENCES phase(phase_id)
+   task_id INT AUTO_INCREMENT PRIMARY KEY,
+   phase_id INT NOT NULL,
+   task_title VARCHAR(50) NOT NULL,
+   task_startdate DATE NOT NULL,
+   task_duration INT NOT NULL,
+   task_description TEXT NOT NULL,
+   task_status VARCHAR(20) NOT NULL,
+   CONSTRAINT chk_task_status CHECK (task_status IN ('Incomplete', 'Complete')),
+   created_by INT NOT NULL,
+   FOREIGN KEY (phase_id) REFERENCES phase(phase_id),
+   FOREIGN KEY (created_by) REFERENCES app_user(user_id),
+   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- Create the material table
 CREATE TABLE material (
-    mat_id INT IDENTITY(1,1) PRIMARY KEY,
-    phase_id INT NOT NULL,
-    mat_title VARCHAR(50) NOT NULL,
-    mat_startdate DATE NOT NULL,
-    mat_duration INT NOT NULL,
-    mat_details VARCHAR(MAX),
-    mat_status VARCHAR(20) NOT NULL CHECK (mat_status IN ('Not Ordered', 'Ordered', 'Delivered')),
-    FOREIGN KEY (phase_id) REFERENCES phase(phase_id)
+   material_id INT AUTO_INCREMENT PRIMARY KEY,
+   phase_id INT NOT NULL,
+   material_title VARCHAR(50) NOT NULL,
+   material_duedate DATE NOT NULL,
+   material_description TEXT NOT NULL,
+   material_status VARCHAR(20) NOT NULL,
+   CONSTRAINT chk_material_status CHECK (material_status IN ('Incomplete', 'Complete')),
+   created_by INT NOT NULL,
+   FOREIGN KEY (phase_id) REFERENCES phase(phase_id),
+   FOREIGN KEY (created_by) REFERENCES app_user(user_id),
+   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- Create the note table
 CREATE TABLE note (
-    note_id INT IDENTITY(1,1) PRIMARY KEY,
-    phase_id INT NOT NULL,
-    note_details VARCHAR(MAX) NOT NULL,
-    FOREIGN KEY (phase_id) REFERENCES phase(phase_id)
+   note_id INT AUTO_INCREMENT PRIMARY KEY,
+   phase_id INT NOT NULL,
+   note_details TEXT NOT NULL,
+   created_by INT NOT NULL,
+   FOREIGN KEY (phase_id) REFERENCES phase(phase_id),
+   FOREIGN KEY (created_by) REFERENCES app_user(user_id),
+   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Create the user_task table
+-- Create the user_task table (for task assignments)
 CREATE TABLE user_task (
-    user_id INT NOT NULL,
-    task_id INT NOT NULL,
-    PRIMARY KEY (user_id, task_id),
-    FOREIGN KEY (user_id) REFERENCES [user](user_id),
-    FOREIGN KEY (task_id) REFERENCES task(task_id)
+   user_id INT NOT NULL,
+   task_id INT NOT NULL,
+   assigned_by INT NOT NULL,
+   PRIMARY KEY (user_id, task_id),
+   FOREIGN KEY (user_id) REFERENCES app_user(user_id),
+   FOREIGN KEY (task_id) REFERENCES task(task_id),
+   FOREIGN KEY (assigned_by) REFERENCES app_user(user_id),
+   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create the user_material table
+-- Create the user_material table (for material assignments)
 CREATE TABLE user_material (
-    user_id INT NOT NULL,
-    mat_id INT NOT NULL,
-    PRIMARY KEY (user_id, mat_id),
-    FOREIGN KEY (user_id) REFERENCES [user](user_id),
-    FOREIGN KEY (mat_id) REFERENCES material(mat_id)
+   user_id INT NOT NULL,
+   material_id INT NOT NULL,
+   assigned_by INT NOT NULL,
+   PRIMARY KEY (user_id, material_id),
+   FOREIGN KEY (user_id) REFERENCES app_user(user_id),
+   FOREIGN KEY (material_id) REFERENCES material(material_id),
+   FOREIGN KEY (assigned_by) REFERENCES app_user(user_id),
+   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );

@@ -1,9 +1,8 @@
 -- Use the icc database
 USE icc;
-GO
 
 -- Select all records from the user table
-SELECT * FROM [user];
+SELECT * FROM app_user;
 
 -- Select all records from the job table
 SELECT * FROM job;
