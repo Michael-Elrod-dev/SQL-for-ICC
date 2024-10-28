@@ -1,63 +1,66 @@
-# Project Management Database Structure
+# ICC Construction Project Management Database
 
-This document provides an overview of the database structure for a project management system. The database is designed to track jobs, their phases, associated tasks and materials, as well as user assignments and notes.
+## Overview
+A comprehensive MySQL database system designed for managing construction projects, tracking tasks, materials, and team assignments. The system supports multiple construction projects with detailed phase tracking, task management, and material procurement workflows.
 
-## Tables and Relationships
+## Database Schema
 
-### Job Table
-- Primary Key: `job_id`
-- Stores information about individual jobs/projects
-- Fields include job title, client details, start date, location, and description
+### Core Tables
+- `app_user`: User management with role-based access (Owner, Admin, User, Client)
+- `job`: Construction project details including location and client information
+- `phase`: Project phases with duration and descriptions
+- `task`: Individual tasks with start dates, durations, and status tracking
+- `material`: Construction materials with due dates and status tracking
+- `note`: Project-related notes and documentation
+- `user_task`: Task assignments linking users to specific tasks
+- `user_material`: Material assignments linking users to material management
 
-### Phase Table
-- Primary Key: `phase_id`
-- Foreign Key: `job_id` (references Job table)
-- Represents different phases of a job
-- Each job can have multiple phases
+### Key Features
+- Role-based user management system
+- Hierarchical project organization (Job → Phase → Task/Material)
+- Detailed tracking of construction tasks and materials
+- Assignment management for both tasks and materials
+- Comprehensive timestamp tracking for all records
+- Status tracking for tasks and materials
+- Project phase management with duration tracking
+- Note-taking system for project documentation
 
-### Task Table
-- Primary Key: `task_id`
-- Foreign Key: `phase_id` (references Phase table)
-- Contains details about specific tasks within a phase
-- Includes task title, start date, duration, details, and status
+## Technical Details
 
-### Material Table
-- Primary Key: `mat_id`
-- Foreign Key: `phase_id` (references Phase table)
-- Tracks materials or resources associated with a phase
-- Includes material title, start date, duration, details, and status
+### User Types
+- Owner: Company principals
+- Admin: Project managers and superintendents
+- User: Field staff and specialists
+- Client: Property developers and owners
 
-### Note Table
-- Primary Key: `note_id`
-- Foreign Key: `phase_id` (references Phase table)
-- Stores additional notes or comments related to a phase
+### Status Tracking
+- Tasks: Incomplete/Complete
+- Materials: Incomplete/Complete
 
-### User Table
-- Primary Key: `user_id`
-- Contains information about users in the system
-- Includes user name, phone, and email
+### Timestamps
+- All tables include `created_at` timestamps
+- Most tables include `updated_at` timestamps that auto-update
 
-### User_Task Table
-- Composite Primary Key: `user_id`, `task_id`
-- Foreign Keys: 
-  - `user_id` (references User table)
-  - `task_id` (references Task table)
-- Represents the assignment of users to specific tasks
+## Database Views
 
-### User_Material Table
-- Composite Primary Key: `user_id`, `mat_id`
-- Foreign Keys:
-  - `user_id` (references User table)
-  - `mat_id` (references Material table)
-- Represents the assignment of users to specific materials
+### Available Views
+- Detailed user role listings
+- Comprehensive job information with client details
+- Phase listings with associated job information
+- Task listings with phase and creator details
+- Material listings with phase and creator information
+- Note listings with phase and creator details
+- Task assignment details
+- Material assignment details
+- Summary statistics for database entities
 
-## Relationships
+## Installation
 
-1. A Job can have multiple Phases (one-to-many)
-2. A Phase can have multiple Tasks (one-to-many)
-3. A Phase can have multiple Materials (one-to-many)
-4. A Phase can have multiple Notes (one-to-many)
-5. Users can be assigned to multiple Tasks, and Tasks can be assigned to multiple Users (many-to-many, through User_Task table)
-6. Users can be assigned to multiple Materials, and Materials can be assigned to multiple Users (many-to-many, through User_Material table)
-
-This structure allows for flexible project management, tracking various aspects of jobs, their phases, and associated tasks and materials, while also managing user assignments and additional notes.
+1. Create the database:
+   ```sql
+   CREATE DATABASE IF NOT EXISTS icc;
+   ```
+2. Run the scripts in the following order:
+create.sql (Creates database schema)
+insert.sql (Populates with initial data)
+view.sql (Creates basic views)
