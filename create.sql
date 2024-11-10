@@ -34,7 +34,7 @@ CREATE TABLE `job` (
    KEY `created_by` (`created_by`),
    CONSTRAINT `job_ibfk_1` FOREIGN KEY (`client_id`) REFERENCES `app_user` (`user_id`),
    CONSTRAINT `job_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `app_user` (`user_id`),
-   CONSTRAINT `chk_job_status` CHECK ((`job_status` in ('active','closed','deleted')))
+   CONSTRAINT `chk_job_status` CHECK ((`job_status` in ('active','closed')))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Create the phase table
