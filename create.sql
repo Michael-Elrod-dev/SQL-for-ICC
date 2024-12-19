@@ -6,7 +6,8 @@ USE `icc`;
 CREATE TABLE `app_user` (
   `user_id` int NOT NULL AUTO_INCREMENT,
   `user_type` varchar(12) NOT NULL,
-  `user_name` varchar(50) NOT NULL,
+  `user_first_name` varchar(50) NOT NULL,
+  `user_last_name` varchar(50) NOT NULL,
   `user_phone` varchar(15) DEFAULT NULL,
   `user_email` varchar(50) NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
