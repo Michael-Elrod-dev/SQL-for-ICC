@@ -1,3 +1,5 @@
+USE `icc`;
+
 DELETE FROM user_material;
 DELETE FROM user_task;
 DELETE FROM note;

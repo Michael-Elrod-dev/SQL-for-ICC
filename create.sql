@@ -10,11 +10,14 @@ CREATE TABLE `app_user` (
   `user_last_name` varchar(50) NOT NULL,
   `user_phone` varchar(15) DEFAULT NULL,
   `user_email` varchar(50) NOT NULL,
+  `password` varchar(255) DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `user_email` (`user_email`),
-  CONSTRAINT `chk_user_type` CHECK ((`user_type` in ('Owner','Admin','User','Client')))
+  CONSTRAINT `chk_user_type` CHECK ((`user_type` in ('Owner','Admin','User','Client'))),
+  CONSTRAINT `chk_password` CHECK (((`user_type` = 'Client' AND `password` IS NULL) OR 
+                                  (`user_type` IN ('Owner','Admin','User') AND `password` IS NOT NULL)))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Create the job table
