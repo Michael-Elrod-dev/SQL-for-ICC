@@ -17,7 +17,11 @@ VALUES
     -- Clients (Property Developers/Owners) - Note: no passwords for clients
     ('Client', 'Commercial', 'Properties', '5015550401', 'contact@commercial-prop.com', NULL),
     ('Client', 'Industrial', 'Developers', '5015550402', 'projects@industrial-dev.com', NULL);
-    
+
+-- Insert invite_code  
+INSERT INTO `invite_code` (`code`, `updated_by`)
+VALUES ('WELCOME123', 1);
+
 -- -- Insert jobs
 -- INSERT INTO job (job_title, job_startdate, job_location, job_description, client_id, created_by)
 -- VALUES

@@ -9,6 +9,7 @@ DROP TABLE IF EXISTS material;
 DROP TABLE IF EXISTS task;
 DROP TABLE IF EXISTS phase;
 DROP TABLE IF EXISTS job;
+DROP TABLE IF EXISTS invite_code;
 DROP TABLE IF EXISTS app_user;
 
 -- Drop schema

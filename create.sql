@@ -104,7 +104,7 @@ CREATE TABLE `material` (
   KEY `created_by` (`created_by`),
   CONSTRAINT `material_ibfk_1` FOREIGN KEY (`phase_id`) REFERENCES `phase` (`phase_id`),
   CONSTRAINT `material_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `app_user` (`user_id`),
-  CONSTRAINT `chk_material_status` CHECK ((`material_status` in ('Incomplete','Complete' 'In Progress')))
+  CONSTRAINT `chk_material_status` CHECK ((`material_status` in ('Incomplete','Complete', 'In Progress')))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Create the note table
