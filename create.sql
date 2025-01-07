@@ -20,6 +20,16 @@ CREATE TABLE `app_user` (
                                   (`user_type` IN ('Owner','Admin','User') AND `password` IS NOT NULL)))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- Create the invite_code table
+CREATE TABLE `invite_code` (
+  `code` varchar(50) NOT NULL,
+  `updated_by` int NOT NULL,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`code`),
+  KEY `updated_by` (`updated_by`),
+  CONSTRAINT `invite_code_ibfk_1` FOREIGN KEY (`updated_by`) REFERENCES `app_user` (`user_id`)
+);
+
 -- Create the job table
 CREATE TABLE `job` (
   `job_id` int NOT NULL AUTO_INCREMENT,
@@ -75,7 +85,7 @@ CREATE TABLE `task` (
   KEY `created_by` (`created_by`),
   CONSTRAINT `task_ibfk_1` FOREIGN KEY (`phase_id`) REFERENCES `phase` (`phase_id`),
   CONSTRAINT `task_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `app_user` (`user_id`),
-  CONSTRAINT `chk_task_status` CHECK ((`task_status` in ('Incomplete','Complete')))
+  CONSTRAINT `chk_task_status` CHECK ((`task_status` in ('Incomplete','Complete', 'In Progress')))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Create the material table
@@ -94,7 +104,7 @@ CREATE TABLE `material` (
   KEY `created_by` (`created_by`),
   CONSTRAINT `material_ibfk_1` FOREIGN KEY (`phase_id`) REFERENCES `phase` (`phase_id`),
   CONSTRAINT `material_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `app_user` (`user_id`),
-  CONSTRAINT `chk_material_status` CHECK ((`material_status` in ('Incomplete','Complete')))
+  CONSTRAINT `chk_material_status` CHECK ((`material_status` in ('Incomplete','Complete' 'In Progress')))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Create the note table
