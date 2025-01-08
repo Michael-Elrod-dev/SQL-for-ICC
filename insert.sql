@@ -3,9 +3,6 @@ USE icc;
 -- Insert app_users
 INSERT INTO app_user (user_type, user_first_name, user_last_name, user_phone, user_email, password)
 VALUES 
-    -- Owners (Company Principals)
-    ('Owner', 'Michael', 'Elrod', '8032308694', 'michaelelrod.dev@gmail.com', '$2a$12$wfa32EkxHD4SvsbiAg/Au.jvOsYxKzmcgmVssHlbMIiNyLftJK6zO'),
-    
     -- Admins (Project Managers/Superintendents)
     ('Admin', 'Michael', 'Chen', '5015550201', 'michael.c@icc.com', '$2a$12$wfa32EkxHD4SvsbiAg/Au.jvOsYxKzmcgmVssHlbMIiNyLftJK6zO'),
 
@@ -17,10 +14,6 @@ VALUES
     -- Clients (Property Developers/Owners) - Note: no passwords for clients
     ('Client', 'Commercial', 'Properties', '5015550401', 'contact@commercial-prop.com', NULL),
     ('Client', 'Industrial', 'Developers', '5015550402', 'projects@industrial-dev.com', NULL);
-
--- Insert invite_code  
-INSERT INTO `invite_code` (`code`, `updated_by`)
-VALUES ('WELCOME123', 1);
 
 -- -- Insert jobs
 -- INSERT INTO job (job_title, job_startdate, job_location, job_description, client_id, created_by)

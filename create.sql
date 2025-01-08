@@ -2,7 +2,7 @@
 CREATE DATABASE IF NOT EXISTS `icc`;
 USE `icc`;
 
--- Create the app_user table
+-- Create the app_user table first
 CREATE TABLE `app_user` (
   `user_id` int NOT NULL AUTO_INCREMENT,
   `user_type` varchar(12) NOT NULL,
@@ -20,15 +20,22 @@ CREATE TABLE `app_user` (
                                   (`user_type` IN ('Owner','Admin','User') AND `password` IS NOT NULL)))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Create the invite_code table
+-- Insert initial owner user
+INSERT INTO app_user (user_type, user_first_name, user_last_name, user_phone, user_email, password)
+VALUES ('Owner', 'Michael', 'Elrod', '8032308694', 'michaelelrod.dev@gmail.com', '$2a$12$wfa32EkxHD4SvsbiAg/Au.jvOsYxKzmcgmVssHlbMIiNyLftJK6zO');
+
+-- Create the invite_code table and insert initial code
 CREATE TABLE `invite_code` (
-  `code` varchar(50) NOT NULL,
+  `code` varchar(50) NOT NULL DEFAULT 'WELCOME',
   `updated_by` int NOT NULL,
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`code`),
   KEY `updated_by` (`updated_by`),
   CONSTRAINT `invite_code_ibfk_1` FOREIGN KEY (`updated_by`) REFERENCES `app_user` (`user_id`)
 );
+
+-- Insert initial invite code (using the owner's user_id which will be 1)
+INSERT INTO invite_code (code, updated_by) VALUES ('WELCOME', 1);
 
 -- Create the job table
 CREATE TABLE `job` (
