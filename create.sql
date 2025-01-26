@@ -11,20 +11,23 @@ CREATE TABLE `app_user` (
   `user_phone` varchar(15) DEFAULT NULL,
   `user_email` varchar(50) NOT NULL,
   `password` varchar(255) DEFAULT NULL,
+  `notification_pref` varchar(5) DEFAULT 'email',
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `user_email` (`user_email`),
   CONSTRAINT `chk_user_type` CHECK ((`user_type` in ('Owner','Admin','User','Client'))),
   CONSTRAINT `chk_password` CHECK (((`user_type` = 'Client' AND `password` IS NULL) OR 
-                                  (`user_type` IN ('Owner','Admin','User') AND `password` IS NOT NULL)))
+                                  (`user_type` IN ('Owner','Admin','User') AND `password` IS NOT NULL))),
+  CONSTRAINT `chk_notification` CHECK (`notification_pref` in ('email','text','both'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Insert initial owner user
 INSERT INTO app_user (user_type, user_first_name, user_last_name, user_phone, user_email, password)
 VALUES ('Owner', 'Michael', 'Elrod', '8032308694', 'michaelelrod.dev@gmail.com', '$2a$12$wfa32EkxHD4SvsbiAg/Au.jvOsYxKzmcgmVssHlbMIiNyLftJK6zO'),
       ('Owner', 'Joey', 'Markowski', '8702135683', 'joeymarkowski@hotmail.com', '$2a$12$wfa32EkxHD4SvsbiAg/Au.jvOsYxKzmcgmVssHlbMIiNyLftJK6zO'),
-      ('Admin', 'Jeff', 'lastName', '9999999999', 'redriverlogcabins@yahoo.com', '$2a$12$wfa32EkxHD4SvsbiAg/Au.jvOsYxKzmcgmVssHlbMIiNyLftJK6zO');
+      ('Admin', 'Jeff', 'lastName', '9999999999', 'redriverlogcabins@yahoo.com', '$2a$12$wfa32EkxHD4SvsbiAg/Au.jvOsYxKzmcgmVssHlbMIiNyLftJK6zO'),
+      ('User', 'Test', 'User', '9999999999', 'test@gmail.com', '$2a$12$wfa32EkxHD4SvsbiAg/Au.jvOsYxKzmcgmVssHlbMIiNyLftJK6zO');
 
 -- Create the invite_code table and insert initial code
 CREATE TABLE `invite_code` (
@@ -36,8 +39,17 @@ CREATE TABLE `invite_code` (
   CONSTRAINT `invite_code_ibfk_1` FOREIGN KEY (`updated_by`) REFERENCES `app_user` (`user_id`)
 );
 
--- Insert initial invite code (using the owner's user_id which will be 1)
-INSERT INTO invite_code (code, updated_by) VALUES ('MYKGR53EYVYM', 1);
+-- Create the password_reset_token table
+CREATE TABLE `password_reset_token` (
+  `token` varchar(255) NOT NULL,
+  `user_id` int NOT NULL,
+  `expires_at` datetime NOT NULL,
+  `used` boolean NOT NULL DEFAULT false,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`token`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `password_reset_token_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `app_user` (`user_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Create the job table
 CREATE TABLE `job` (
@@ -46,7 +58,6 @@ CREATE TABLE `job` (
   `job_startdate` date NOT NULL,
   `job_location` varchar(50) DEFAULT NULL,
   `job_description` text,
-  `job_floorplan` longblob,
   `client_id` int DEFAULT NULL,
   `created_by` int NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
@@ -58,6 +69,17 @@ CREATE TABLE `job` (
   CONSTRAINT `job_ibfk_1` FOREIGN KEY (`client_id`) REFERENCES `app_user` (`user_id`),
   CONSTRAINT `job_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `app_user` (`user_id`),
   CONSTRAINT `chk_job_status` CHECK ((`job_status` in ('active','closed')))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Create teh floorplan table
+CREATE TABLE `job_floorplan` (
+  `floorplan_id` int NOT NULL AUTO_INCREMENT,
+  `job_id` int NOT NULL,
+  `floorplan_url` varchar(255) NOT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`floorplan_id`),
+  KEY `job_id` (`job_id`),
+  CONSTRAINT `job_floorplan_ibfk_1` FOREIGN KEY (`job_id`) REFERENCES `job` (`job_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Create the phase table
