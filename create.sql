@@ -19,7 +19,7 @@ CREATE TABLE `app_user` (
   CONSTRAINT `chk_user_type` CHECK ((`user_type` in ('Owner','Admin','User','Client'))),
   CONSTRAINT `chk_password` CHECK (((`user_type` = 'Client' AND `password` IS NULL) OR 
                                   (`user_type` IN ('Owner','Admin','User') AND `password` IS NOT NULL))),
-  CONSTRAINT `chk_notification` CHECK (`notification_pref` in ('email','text','both'))
+  CONSTRAINT `chk_notification` CHECK (`notification_pref` in ('email','text','both','none'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Insert initial owner user
@@ -138,7 +138,7 @@ CREATE TABLE `material` (
   CONSTRAINT `chk_material_status` CHECK ((`material_status` in ('Incomplete','Complete', 'In Progress')))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Create the note table
+-- Create the note tables
 CREATE TABLE `note` (
   `note_id` int NOT NULL AUTO_INCREMENT,
   `phase_id` int NOT NULL,
@@ -151,6 +151,34 @@ CREATE TABLE `note` (
   KEY `created_by` (`created_by`),
   CONSTRAINT `note_ibfk_1` FOREIGN KEY (`phase_id`) REFERENCES `phase` (`phase_id`),
   CONSTRAINT `note_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `app_user` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `task_note` (
+  `note_id` int NOT NULL AUTO_INCREMENT,
+  `task_id` int NOT NULL,
+  `note_details` text NOT NULL,
+  `created_by` int NOT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`note_id`),
+  KEY `task_id` (`task_id`),
+  KEY `created_by` (`created_by`),
+  CONSTRAINT `task_note_ibfk_1` FOREIGN KEY (`task_id`) REFERENCES `task` (`task_id`),
+  CONSTRAINT `task_note_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `app_user` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `material_note` (
+  `note_id` int NOT NULL AUTO_INCREMENT,
+  `material_id` int NOT NULL,
+  `note_details` text NOT NULL,
+  `created_by` int NOT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`note_id`),
+  KEY `material_id` (`material_id`),
+  KEY `created_by` (`created_by`),
+  CONSTRAINT `material_note_ibfk_1` FOREIGN KEY (`material_id`) REFERENCES `material` (`material_id`),
+  CONSTRAINT `material_note_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `app_user` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Create the user_task table
